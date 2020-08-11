@@ -1,0 +1,28 @@
+{% extends "base" %}
+
+{% block content %}
+
+<h1>学生登録</h1>
+
+<form action="/student" method="POST" style="display: flex; flex-flow: column; justify-content: center;">
+  
+  <label for="id">学生番号</label>
+  <input name="id" type="number" value="" required/>
+
+  <label for="name">名前</label>
+  <input name="name" type="text" value="" required/>
+
+  <label for="year">学年</label>
+  <input name="year" type="text" value="" max="3" required/>
+
+  <label for="class_name">クラス名（学年と”組”を除いたもの。2年B組ならBのみを入力）</label>
+  <input name="class_name" type="text" value="" maxlength="1" required/>
+
+  <label for="age">年齢</label>
+  <input name="age" type="number" value="" required/>
+
+  <button type="submit">Send</button>
+  
+</form>
+
+{% endblock content %}
