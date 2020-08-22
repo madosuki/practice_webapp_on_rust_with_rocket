@@ -1,22 +1,24 @@
 #![feature(proc_macro_hygiene, decl_macro)]
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
+extern crate webapp;
+
+use self::models::*;
 
 use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
+
+use diesel::prelude::*;
+
 use rocket::request::{Form, Request};
 use rocket::response::Redirect;
 use rocket_contrib::json::Json;
 use rocket_contrib::templates::Template;
 
-#[derive(Serialize, Deserialize, Debug, FromForm)]
-struct Student {
-    id: u32,
-    name: String,
-    year: u8,
-    class_name: String,
-    age: u32
-}
+use webapp::*;
+
+use self::schema::students::dsl::*;
 
 #[derive(Serialize)]
 struct AboutTemplate {
@@ -39,11 +41,20 @@ fn regist_student() -> Template {
     Template::render("form", &tmp)
 }
 
-#[get("/student?<id>", format = "json")]
-fn get_student_data(id: usize) -> Option<Json<Student>> {
+#[get("/student?<_id>", format = "json")]
+fn get_student_data(_id: usize) -> Option<Json<Student>> {
 
-    if id > 0 {
-        let student = Student {id: 1, name: "Rei".to_string(), year: 2, class_name: "B".to_string(), age: 17 };
+    let connection = connect_db();
+
+    let results = students.filter(is_exist.eq(true)).load::<Student>(&connection).expect("got error");
+
+    for post in results {
+        println!("result: {}", post.name);
+    }
+    
+
+    if _id > 0 {
+        let student = Student {id: 1, name: "Rei".to_string(), year: 2, class_name: "B".to_string(), age: 17, is_exist: true };
 
         return Some(Json(student))
     }
@@ -66,9 +77,9 @@ fn about() -> Template {
     Template::render("about", &template)
 }
 
-#[get("/user/<id>")]
-fn user(id: usize) -> String {
-    let id_str = id.to_string();
+#[get("/user/<_id>")]
+fn user(_id: usize) -> String {
+    let id_str = _id.to_string();
     let mut tmp = "<h1>your id: ".to_owned();
     let end = "</h1>";
 
