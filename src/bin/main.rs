@@ -46,18 +46,26 @@ fn get_student_data(_id: usize) -> Option<Json<Student>> {
 
     let connection = connect_db();
 
-    let results = students.filter(is_exist.eq(true)).load::<Student>(&connection).expect("got error");
+    let tmp = _id as i32;
 
-    for post in results {
+    let results: std::vec::Vec<Student> = students.filter(id.eq(tmp)).load::<Student>(&connection).expect("got error");
+
+    for post in &results {
         println!("result: {}", post.name);
     }
-    
 
-    if _id > 0 {
-        let student = Student {id: 1, name: "Rei".to_string(), year: 2, class_name: "B".to_string(), age: 17, is_exist: true };
+    if results.len() > 0 {
+        let data = results.get(0).unwrap();
+        let student = Student {id: data.id, name: data.name.clone(), year: data.year, class_name: data.class_name.clone(), age: data.age, is_exist: data.is_exist};
 
         return Some(Json(student))
     }
+
+    // if _id > 0 {
+    //     let student = Student {id: 1, name: "Rei".to_string(), year: 2, class_name: "B".to_string(), age: 17, is_exist: true };
+
+    //     return Some(Json(student))
+    // }
 
     None
  
